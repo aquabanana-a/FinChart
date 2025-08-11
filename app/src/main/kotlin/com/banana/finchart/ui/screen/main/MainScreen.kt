@@ -11,13 +11,17 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -97,7 +101,9 @@ object MainScreen {
                 }
             }
             VolumeChart(
-                modifier = Modifier.weight(1f).fillMaxWidth(),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
                 visibleRange = xAxisSharedVisibleRange,
                 mainViewModel = mainViewModel
             )
@@ -113,10 +119,12 @@ object MainScreen {
         val change = ohlc.closePrice - ohlc.openPrice
         val changePercent = (change / ohlc.openPrice) * 100
 
-        val bgModifier = Modifier.wrapContentSize().background(
-            Color(0x09000000),
-            RoundedCornerShape(4.dp)
-        )
+        val bgModifier = Modifier
+            .wrapContentSize()
+            .background(
+                Color(0x09000000),
+                RoundedCornerShape(4.dp)
+            )
 
         FlowRow(
             modifier = modifier.padding(4.dp),
@@ -343,22 +351,44 @@ object MainScreen {
     }
 
     @Composable
-    fun LicenseKeyDialog(onDismiss: () -> Unit) {
+    fun LicenseKeyDialog(
+        onConfirm: (String) -> Unit
+    ) {
+        var key by remember { mutableStateOf("") }
+
         AlertDialog(
-            onDismissRequest = onDismiss,
-            title = { Text("Введите ключ продукта") },
+            modifier = Modifier.imePadding(),
+            onDismissRequest = { },
+            title = {
+                Text(
+                    text = "Введите ключ продукта",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            },
             text = {
-                var key by remember { mutableStateOf("") }
-                TextField(value = key, onValueChange = { key = it })
+                TextField(
+                    value = key,
+                    onValueChange = { key = it },
+                    singleLine = true,
+                    placeholder = { Text("Ключ лицензии") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                        errorTextColor = MaterialTheme.colorScheme.error,
+                        cursorColor = MaterialTheme.colorScheme.primary
+                    )
+                )
             },
             confirmButton = {
-                Button(onClick = {
-                    onDismiss()
-                }) {
+                Button(
+                    onClick = { onConfirm(key) },
+                    enabled = key.isNotBlank()
+                ) {
                     Text("OK")
                 }
             }
         )
     }
-
 }
