@@ -1,5 +1,6 @@
 <table>
   <tr>
+    <td><img src="https://raw.githubusercontent.com/aquabanana-a/FinChart/main/Screenshot_20250811_170136.png" width="700"/></td>
     <td><img src="https://raw.githubusercontent.com/aquabanana-a/FinChart/main/Screenshot_20250811_124933.png" width="700"/></td>
   </tr>
 </table>
