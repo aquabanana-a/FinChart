@@ -1,0 +1,113 @@
+[versions]
+agp = "8.9.1"
+coreKtx = "1.16.0"
+junit = "4.13.2"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+lifecycleRuntimeKtx = "2.9.1"
+activityCompose = "1.10.1"
+composeBom = "2024.09.00"
+appcompat = "1.7.1"
+material = "1.12.0"
+
+kotlin = "2.1.20"
+coroutines = "1.10.1"
+serialization = "1.8.0"
+datetime = "0.6.2"
+
+androidxAnnotation = "1.9.1"
+
+coil = "2.4.0"
+
+viewmodel = "2.9.2"
+
+scichart = "4.6.0.4885"
+
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+kotlin-stdlib-common = { module = "org.jetbrains.kotlin:kotlin-stdlib-common", version.ref = "kotlin" }
+kotlin-stdlib-jdk = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
+serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
+
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+
+androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "androidxAnnotation" }
+
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+
+lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "viewmodel" }
+
+#NOTE: ext = "aar" requred
+scichart-core = { group = "com.scichart.library", name = "core", version.ref = "scichart" }
+scichart-data = { group = "com.scichart.library", name = "data", version.ref = "scichart" }
+scichart-drawing = { group = "com.scichart.library", name = "drawing", version.ref = "scichart" }
+scichart-charting = { group = "com.scichart.library", name = "charting", version.ref = "scichart" }
+scichart-charting3d = { group = "com.scichart.library", name = "charting3d", version.ref = "scichart" }
+scichart-extensions = { group = "com.scichart.library", name = "extensions", version.ref = "scichart" }
+scichart-extensions3d = { group = "com.scichart.library", name = "extensions3d", version.ref = "scichart" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+
+[bundles]
+kotlin = [
+    "kotlin-stdlib",
+    "kotlin-stdlib-common",
+    "kotlin-stdlib-jdk",
+    "serialization-json",
+    "datetime"
+]
+
+coroutines = [
+    "coroutines-core",
+    "coroutines-android",
+]
+
+ui = [
+    "androidx-ui",
+    "androidx-ui-graphics",
+    "androidx-ui-tooling",
+    "androidx-ui-tooling-preview",
+    "androidx-ui-test-manifest",
+    "androidx-material3",
+]
+
+scichart2d = [
+    "scichart-core",
+    "scichart-data",
+    "scichart-drawing",
+    "scichart-charting",
+    "scichart-extensions",
+]
+
+scichart = [
+    "scichart-core",
+    "scichart-data",
+    "scichart-drawing",
+    "scichart-charting",
+    "scichart-extensions",
+    "scichart-charting3d",
+    "scichart-extensions3d"
+]

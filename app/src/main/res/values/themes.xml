@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.FinChart" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="ChartTheme" parent="SciChart_Bright_Spark">
+        <!-- Background defaults -->
+        <item name="renderableSeriesAreaFillColor">#FFFFFFFF</item>
+        <item name="renderableSeriesAreaBorderColor">#FFE6E6E6</item>
+        <item name="sciChartBackground">@drawable/chart_background</item>
+
+        <item name="labelBackground">@drawable/chart_label_background</item>
+
+        <item name="axisTooltipTextColor">#FFFFFFFF</item>
+        <item name="axisTooltipBackground">@drawable/chart_label_background</item>
+
+        <!-- Axis defaults -->
+        <item name="axisBandsColor">#FFFFFFFF</item>
+        <item name="majorGridLinesColor">#FFE6E6E6</item>
+        <item name="minorGridLinesColor">#FFE6E6E6</item>
+
+        <item name="cursorLineColor">#FFA8A9AD</item>
+
+        <item name="tickTextColor">#FF333333</item>
+        <item name="defaultTextColor">#FF333333</item>
+
+        <!-- CandlestickSeries defaults -->
+        <item name="candleStickFillUpColor">#FF089981</item>
+        <item name="candleStickFillDownColor">#FFF23645</item>
+        <item name="candleStickStrokeUpColor">#FF089981</item>
+        <item name="candleStickStrokeDownColor">#FFF23645</item>
+    </style>
+
+</resources>
