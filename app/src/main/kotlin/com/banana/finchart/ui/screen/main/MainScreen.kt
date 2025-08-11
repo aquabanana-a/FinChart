@@ -34,7 +34,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.banana.finchart.R
-import com.banana.finchart.data.OHLC
+import com.banana.finchart.data.market.OHLC
 import com.banana.finchart.ui.common.chart.SnapCrosshairModifier
 import com.banana.finchart.ui.common.chart.VolumePaletteProvider
 import com.banana.finchart.ui.common.util.FormatUtil.format
@@ -60,44 +60,19 @@ import java.util.Date
 
 object MainScreen {
 
-    private val ohlcList = listOf(
-        OHLC(1622505600000L, 10.0, 12.0, 9.5, 11.5, 1000),
-        OHLC(1622592000000L, 11.0, 12.5, 10.5, 11.0, 1500),
-        OHLC(1622678400000L, 10.5, 11.5, 9.8, 11.2, 1300),
-        OHLC(1622764800000L, 12.0, 13.0, 11.0, 12.5, 1100),
-        OHLC(1622851200000L, 11.5, 12.0, 10.8, 11.0, 1600),
-        OHLC(1622937600000L, 11.2, 11.8, 10.9, 11.5, 1400),
-        OHLC(1623024000000L, 11.4, 11.9, 11.0, 11.2, 1350),
-        OHLC(1623110400000L, 11.1, 12.3, 10.7, 12.0, 1700),
-        OHLC(1623196800000L, 11.8, 12.5, 11.4, 12.3, 1550),
-        OHLC(1623283200000L, 12.2, 12.7, 11.8, 12.1, 1800),
-        OHLC(1623369600000L, 12.0, 12.4, 11.5, 12.2, 1650),
-        OHLC(1623456000000L, 12.5, 12.8, 12.0, 12.6, 1900),
-        OHLC(1623542400000L, 12.3, 12.6, 12.0, 12.1, 1750),
-        OHLC(1623628800000L, 12.0, 12.3, 11.6, 11.9, 1600),
-        OHLC(1623715200000L, 11.7, 12.1, 11.4, 11.6, 1500),
-        OHLC(1623801600000L, 11.5, 12.4, 11.3, 11.7, 1550),
-        OHLC(1623888000000L, 11.8, 12.7, 11.5, 12.0, 1600),
-        OHLC(1623974400000L, 12.1, 12.9, 11.8, 12.3, 1700),
-        OHLC(1624060800000L, 11.9, 12.5, 11.6, 12.0, 1650),
-        OHLC(1624147200000L, 12.3, 12.8, 11.9, 12.5, 1750),
-        OHLC(1624233600000L, 12.5, 13.0, 12.0, 12.7, 1800),
-        OHLC(1624320000000L, 12.7, 13.2, 12.2, 12.8, 1850),
-        OHLC(1624406400000L, 12.4, 13.1, 12.0, 12.5, 1900),
-        OHLC(1624492800000L, 12.6, 13.3, 12.1, 12.7, 1950),
-        OHLC(1624579200000L, 12.8, 13.4, 12.3, 12.9, 2000)
-    )
-
     @Composable
     fun TradingChart(modifier: Modifier, mainViewModel: MainScreenViewModel) {
         val crosshairState by mainViewModel.crosshairStateFlow.collectAsState()
 
+        val chartSnapshot by mainViewModel.activeChartSnapshot.collectAsState()
+        if (chartSnapshot == null) return
+
         val xAxisSharedVisibleRange = remember { mutableStateOf(DateRange(
-            ohlcList.first().timestampDate,
-            ohlcList.last().timestampDate)) }
+            chartSnapshot!!.ohlcDataList.first().timestampDate,
+            chartSnapshot!!.ohlcDataList.last().timestampDate)) }
 
         val cursorOhlc = remember(crosshairState.timestampMs) {
-            ohlcList.find { it.timestampMs == crosshairState.timestampMs }
+            chartSnapshot!!.ohlcDataList.find { it.timestampMs == crosshairState.timestampMs }
         }
 
         Column(modifier = modifier) {
@@ -212,6 +187,8 @@ object MainScreen {
                 }
             },
             update = { surface ->
+                var ohlcList = mainViewModel.activeChartSnapshot.value!!.ohlcDataList
+
                 val xAxis = DateAxis(surface.context).apply {
                     axisId = "xAxisCandle"
                     //visibility = View.GONE
@@ -288,6 +265,8 @@ object MainScreen {
                 }
             },
             update = { surface ->
+                var ohlcList = mainViewModel.activeChartSnapshot.value!!.ohlcDataList
+
                 val xAxis = DateAxis(surface.context).apply {
                     axisId = "xAxisVolume"
                     this.visibleRange = visibleRange.value
@@ -330,7 +309,7 @@ object MainScreen {
 
                 UpdateSuspender.using(surface) {
                     applyAxisStyle(xAxis, yAxis)
-                    applyVolumeStyle(columnSeries)
+                    applyVolumeStyle(columnSeries, ohlcList)
 
                     Collections.addAll(surface.renderableSeries, columnSeries)
                     Collections.addAll(
@@ -342,7 +321,7 @@ object MainScreen {
         )
     }
 
-    private fun applyVolumeStyle(columnSeries: FastColumnRenderableSeries) {
+    private fun applyVolumeStyle(columnSeries: FastColumnRenderableSeries, ohlcList: List<OHLC>) {
         columnSeries.paletteProvider = VolumePaletteProvider(
             ohlcList.map { it.openPrice },
             ohlcList.map { it.closePrice }).apply {

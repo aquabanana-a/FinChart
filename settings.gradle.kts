@@ -26,3 +26,4 @@ dependencyResolutionManagement {
 rootProject.name = "FinChart"
 include(":app")
 include(":app_data")
+include(":app_model")

@@ -10,7 +10,7 @@ composeBom = "2024.09.00"
 appcompat = "1.7.1"
 material = "1.12.0"
 
-kotlin = "2.1.20"
+kotlin = "2.2.0"
 coroutines = "1.10.1"
 serialization = "1.8.0"
 datetime = "0.6.2"
@@ -22,6 +22,10 @@ coil = "2.4.0"
 viewmodel = "2.9.2"
 
 scichart = "4.6.0.4885"
+
+poi = "5.4.1"
+
+hilt-android = "2.57"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -56,6 +60,9 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coi
 
 lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "viewmodel" }
 
+poi = { group = "org.apache.poi", name = "poi", version.ref = "poi" }
+poi-ooxml = { group = "org.apache.poi", name = "poi-ooxml", version.ref = "poi" }
+
 #NOTE: ext = "aar" requred
 scichart-core = { group = "com.scichart.library", name = "core", version.ref = "scichart" }
 scichart-data = { group = "com.scichart.library", name = "data", version.ref = "scichart" }
@@ -65,11 +72,15 @@ scichart-charting3d = { group = "com.scichart.library", name = "charting3d", ver
 scichart-extensions = { group = "com.scichart.library", name = "extensions", version.ref = "scichart" }
 scichart-extensions3d = { group = "com.scichart.library", name = "extensions3d", version.ref = "scichart" }
 
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt-android" }
+hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt-android" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt-android" }
 
 [bundles]
 kotlin = [
@@ -110,4 +121,9 @@ scichart = [
     "scichart-extensions",
     "scichart-charting3d",
     "scichart-extensions3d"
+]
+
+poi = [
+    "poi",
+    "poi-ooxml",
 ]

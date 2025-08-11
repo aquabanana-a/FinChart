@@ -3,7 +3,9 @@ package com.banana.finchart
 import android.app.Application
 import android.util.Log
 import com.scichart.charting.visuals.SciChartSurface
+import dagger.hilt.android.HiltAndroidApp
 
+@HiltAndroidApp
 class App : Application() {
 
     private val key =

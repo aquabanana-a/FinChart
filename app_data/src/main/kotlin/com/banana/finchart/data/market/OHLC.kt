@@ -1,4 +1,4 @@
-package com.banana.finchart.data
+package com.banana.finchart.data.market
 
 import java.util.Date
 
