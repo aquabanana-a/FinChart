@@ -15,7 +15,7 @@ class SnapshotManagerImpl @Inject constructor() : SnapshotManager {
 
     private val snapshotMap = hashMapOf(
         "mock" to ChartSnapshot( // mock for test
-            Instrument("mock"), listOf(
+            Instrument("mock"), setOf(
                 OHLC(1622505600000L, 10.0, 12.0, 9.5, 11.5, 1000),
                 OHLC(1622592000000L, 11.0, 12.5, 10.5, 11.0, 1500),
                 OHLC(1622678400000L, 10.5, 11.5, 9.8, 11.2, 1300),
@@ -51,6 +51,8 @@ class SnapshotManagerImpl @Inject constructor() : SnapshotManager {
 
     override fun loadChartFromXls(stream: InputStream): Boolean {
         try {
+            val xlsData = hashMapOf<String, HashMap<Long, OHLC>>()
+
             val workbook = XSSFWorkbook(stream)
             val sheet = workbook.getSheetAt(0)
             val dataFormatter = DataFormatter()
@@ -87,20 +89,34 @@ class SnapshotManagerImpl @Inject constructor() : SnapshotManager {
                 val volumeStr = dataFormatter.formatCellValue(row.getCell(6)).replace(',', '.')
                 val volume = volumeStr.toLongOrNull() ?: 0L
 
-                snapshotMap.getOrPut(symbol, {
-                    ChartSnapshot(Instrument(symbol))
-                }).push(
-                    OHLC(
-                        timestampMs = timestampMs,
-                        openPrice = open,
-                        highPrice = high,
-                        lowPrice = low,
-                        closePrice = close,
-                        volume = volume
-                    ))
+                var symbolData = xlsData[symbol]
+                if (symbolData == null) {
+                    symbolData = hashMapOf()
+                    xlsData[symbol] = symbolData
+                }
+
+                symbolData[timestampMs] = OHLC(
+                    timestampMs = timestampMs,
+                    openPrice = open,
+                    highPrice = high,
+                    lowPrice = low,
+                    closePrice = close,
+                    volume = volume
+                )
             }
 
             workbook.close()
+
+            xlsData.forEach { (symbol, data) ->
+                val knownSnapshot = snapshotMap[symbol]
+                snapshotMap[symbol] = ChartSnapshot(
+                    Instrument(symbol),
+                    (if (knownSnapshot != null)
+                        data.values + knownSnapshot.ohlcDataSet
+                    else
+                        data.values).sortedBy { it.timestampMs }.toSet()
+                )
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             return false

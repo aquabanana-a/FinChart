@@ -76,12 +76,18 @@ object MainScreen {
         val chartSnapshot by mainViewModel.activeChartSnapshot.collectAsState()
         if (chartSnapshot == null) return
 
-        val xAxisSharedVisibleRange = remember { mutableStateOf(DateRange(
-            chartSnapshot!!.ohlcDataList.first().timestampDate,
-            chartSnapshot!!.ohlcDataList.last().timestampDate)) }
+        val xAxisSharedVisibleRange = remember { mutableStateOf(
+            DateRange(
+                chartSnapshot!!.ohlcDataSet.first().timestampDate,
+                chartSnapshot!!.ohlcDataSet.last().timestampDate
+            ))
+        }
 
         val cursorOhlc = remember(crosshairState.timestampMs) {
-            chartSnapshot!!.ohlcDataList.find { it.timestampMs == crosshairState.timestampMs }
+            if (crosshairState is SnapCrosshairModifier.State.None)
+                null
+            else
+                chartSnapshot!!.ohlcDataSet.find { it.timestampMs == crosshairState.timestampMs }
         }
 
         Column(modifier = modifier) {
@@ -200,7 +206,7 @@ object MainScreen {
                 }
             },
             update = { surface ->
-                val ohlcList = mainViewModel.activeChartSnapshot.value!!.ohlcDataList
+                val ohlcList = mainViewModel.activeChartSnapshot.value!!.ohlcDataSet
 
                 val xAxis = DateAxis(surface.context).apply {
                     axisId = "xAxisCandle"
@@ -225,6 +231,7 @@ object MainScreen {
                     Date::class.javaObjectType,
                     Double::class.javaObjectType
                 ).apply {
+                    clear()
                     for (ohlc in ohlcList) {
                         append(
                             ohlc.timestampDate, ohlc.openPrice, ohlc.highPrice, ohlc.lowPrice,
@@ -275,7 +282,7 @@ object MainScreen {
                 }
             },
             update = { surface ->
-                val ohlcList = mainViewModel.activeChartSnapshot.value!!.ohlcDataList
+                val ohlcList = mainViewModel.activeChartSnapshot.value!!.ohlcDataSet
 
                 val xAxis = DateAxis(surface.context).apply {
                     axisId = "xAxisVolume"
@@ -301,6 +308,7 @@ object MainScreen {
                     Date::class.javaObjectType,
                     Double::class.javaObjectType
                 ).apply {
+                    clear()
                     for (ohlc in ohlcList) {
                         append(
                             ohlc.timestampDate, ohlc.volume.toDouble()
@@ -345,10 +353,10 @@ object MainScreen {
         }
     }
 
-    private fun applyVolumeStyle(columnSeries: FastColumnRenderableSeries, ohlcList: List<OHLC>) {
+    private fun applyVolumeStyle(columnSeries: FastColumnRenderableSeries, ohlcSet: Set<OHLC>) {
         columnSeries.paletteProvider = VolumePaletteProvider(
-            ohlcList.map { it.openPrice },
-            ohlcList.map { it.closePrice }).apply {
+            ohlcSet.map { it.openPrice },
+            ohlcSet.map { it.closePrice }).apply {
             upColor = ChartGreenUp
             downColor = ChartRedDown
         }
