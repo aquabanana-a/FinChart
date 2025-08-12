@@ -59,8 +59,10 @@ import com.scichart.charting.visuals.axes.DateAxis
 import com.scichart.charting.visuals.axes.NumericAxis
 import com.scichart.charting.visuals.renderableSeries.FastCandlestickRenderableSeries
 import com.scichart.charting.visuals.renderableSeries.FastColumnRenderableSeries
+import com.scichart.charting.visuals.synchronization.SciChartVerticalGroup
 import com.scichart.core.framework.UpdateSuspender
 import com.scichart.data.model.DateRange
+import com.scichart.data.model.DoubleRange
 import com.scichart.drawing.common.SolidPenStyle
 import java.util.Collections
 import java.util.Date
@@ -90,6 +92,8 @@ object MainScreen {
                 chartSnapshot!!.ohlcDataSet.find { it.timestampMs == crosshairState.timestampMs }
         }
 
+        val verticalChartsGroup = remember { SciChartVerticalGroup() }
+
         Column(modifier = modifier) {
             Box(
                 modifier = Modifier
@@ -99,7 +103,8 @@ object MainScreen {
                 CandleStickChart(
                     modifier = Modifier.fillMaxSize(),
                     visibleRange = xAxisSharedVisibleRange,
-                    mainViewModel = mainViewModel
+                    mainViewModel = mainViewModel,
+                    verticalGroup = verticalChartsGroup
                 )
 
                 if (cursorOhlc != null) {
@@ -116,7 +121,8 @@ object MainScreen {
                     .weight(1f)
                     .fillMaxWidth(),
                 visibleRange = xAxisSharedVisibleRange,
-                mainViewModel = mainViewModel
+                mainViewModel = mainViewModel,
+                verticalGroup = verticalChartsGroup
             )
         }
     }
@@ -196,13 +202,15 @@ object MainScreen {
     private fun CandleStickChart(
         modifier: Modifier,
         visibleRange: MutableState<DateRange>,
-        mainViewModel: MainScreenViewModel
+        mainViewModel: MainScreenViewModel,
+        verticalGroup: SciChartVerticalGroup
     ) {
         AndroidView(
             modifier = modifier,
             factory = { context ->
                 SciChartSurface(context).apply {
                     theme = R.style.ChartTheme
+                    verticalGroup.addSurfaceToGroup(this)
                 }
             },
             update = { surface ->
@@ -272,13 +280,15 @@ object MainScreen {
     private fun VolumeChart(
         modifier: Modifier,
         visibleRange: MutableState<DateRange>,
-        mainViewModel: MainScreenViewModel
+        mainViewModel: MainScreenViewModel,
+        verticalGroup: SciChartVerticalGroup
     ) {
         AndroidView(
             modifier = modifier,
             factory = { context ->
                 SciChartSurface(context).apply {
                     theme = R.style.ChartTheme
+                    verticalGroup.addSurfaceToGroup(this)
                 }
             },
             update = { surface ->
@@ -367,11 +377,14 @@ object MainScreen {
         xAxis.cursorTextFormatting = "dd/MM/yyyy HH:mm"
         xAxis.majorGridLineStyle = SolidPenStyle(ChartGridColor, true, 1f, null)
         xAxis.minorGridLineStyle = SolidPenStyle(ChartGridColor, true, 0.5f, null)
+        xAxis.growBy = DoubleRange(0.0, 0.0)
 
         yAxis.textFormatting = "0.##"
         yAxis.cursorTextFormatting = "0.#####"
         yAxis.majorGridLineStyle = SolidPenStyle(ChartGridColor, true, 1f, null)
         yAxis.minorGridLineStyle = SolidPenStyle(ChartGridColor, true, 0.5f, null)
+        yAxis.drawMajorTicks = false
+        yAxis.drawMinorTicks = false
     }
 
     @Composable
