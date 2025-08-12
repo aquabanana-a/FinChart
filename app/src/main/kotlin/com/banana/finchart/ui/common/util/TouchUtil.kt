@@ -11,7 +11,7 @@ object TouchUtil {
         x: Float,
         y: Float,
         action: Int,
-        recycle: Boolean = true
+        recycle: Boolean = false
     ) = apply {
         if (recycle) e?.recycle()
         e = MotionEvent.obtain(
@@ -27,7 +27,7 @@ object TouchUtil {
     fun ModifierTouchEventArgs.overrideTouch(
         target: IPublishMotionEvents,
         source: IReceiveMotionEvents,
-        recycle: Boolean = true
+        recycle: Boolean = false
     ) = run {
         ModifierTouchEventArgs(target, source)
             .overrideTouch(e.x, e.y, e.action, recycle)
