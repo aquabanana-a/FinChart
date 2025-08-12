@@ -3,7 +3,8 @@ package com.banana.finchart.ui.common
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKeys
+import androidx.security.crypto.MasterKey
+import androidx.core.content.edit
 
 class SecurePrefs(context: Context) {
 
@@ -13,11 +14,14 @@ class SecurePrefs(context: Context) {
     }
 
     private val sharedPrefs: SharedPreferences by lazy {
-        val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+        val masterKey = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
         EncryptedSharedPreferences.create(
-            PREFS_NAME,
-            masterKeyAlias,
             context.applicationContext,
+            PREFS_NAME,
+            masterKey,
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
@@ -26,10 +30,10 @@ class SecurePrefs(context: Context) {
     fun getSciChartsApiKey(): String? = sharedPrefs.getString(KEY_SCI_CHARTS_API, null)
 
     fun saveSciChartsApiKey(key: String) {
-        sharedPrefs.edit().putString(KEY_SCI_CHARTS_API, key).apply()
+        sharedPrefs.edit { putString(KEY_SCI_CHARTS_API, key) }
     }
 
     fun clearSciChartsApiKey() {
-        sharedPrefs.edit().remove(KEY_SCI_CHARTS_API).apply()
+        sharedPrefs.edit { remove(KEY_SCI_CHARTS_API) }
     }
 }

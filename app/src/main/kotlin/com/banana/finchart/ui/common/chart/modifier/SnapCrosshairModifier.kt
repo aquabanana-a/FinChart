@@ -1,8 +1,8 @@
-package com.banana.finchart.ui.common.chart
+package com.banana.finchart.ui.common.chart.modifier
 
-import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.ViewConfiguration
+import com.banana.finchart.ui.common.util.TouchUtil.overrideTouch
 import com.scichart.charting.model.dataSeries.OhlcDataSeries
 import com.scichart.charting.modifiers.CursorModifier
 import com.scichart.core.IServiceContainer
@@ -28,7 +28,7 @@ class SnapCrosshairModifier(
         val timestampMs: Long
     ) {
         object None : State(-1)
-        data class Active(var timestamp: Long) : State(timestamp)
+        class Active(timestampMs: Long) : State(timestampMs)
     }
 
     // Handler + Looper is so trivial
@@ -37,12 +37,9 @@ class SnapCrosshairModifier(
     private var longPressToggle = false
     private val longPressTimeoutMs = ViewConfiguration.getLongPressTimeout().toLong()
 
-    private var pressToggle = false
+    private var modifierTouchHandler: ((ModifierTouchEventArgs) -> Unit)? = null
 
-    init {
-        offset = 0f
-        showTooltip = false
-    }
+    private var pressToggle = false
 
     var pX = 0f
     var pY = 0f
@@ -70,12 +67,12 @@ class SnapCrosshairModifier(
 
                     stateFlow.value = State.Active(candleTimestampMs)
 
-                    val tea = touchEventArgs.asFakeTouch(
-                        pX,
-                        pY,
-                        MotionEvent.ACTION_DOWN
-                    )
-                    super.onTouch(tea)
+                    proceedModifierTouch(
+                        touchEventArgs.overrideTouch(
+                            pX,
+                            pY,
+                            MotionEvent.ACTION_DOWN
+                        ))
                 }
             }
             MotionEvent.ACTION_MOVE -> {
@@ -94,12 +91,12 @@ class SnapCrosshairModifier(
 
                 stateFlow.value = State.Active(candleTimestampMs)
 
-                val tea = touchEventArgs.asFakeTouch(
-                    pX,
-                    pY,
-                    MotionEvent.ACTION_MOVE
-                )
-                super.onTouch(tea)
+                proceedModifierTouch(
+                    touchEventArgs.overrideTouch(
+                        pX,
+                        pY,
+                        MotionEvent.ACTION_MOVE
+                    ))
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 longPressJob?.cancel()
@@ -109,9 +106,14 @@ class SnapCrosshairModifier(
 
                 stateFlow.value = State.None
 
-                super.onTouch(touchEventArgs)
+                proceedModifierTouch(touchEventArgs)
             }
         }
+    }
+
+    private fun proceedModifierTouch(touchEventArgs: ModifierTouchEventArgs) {
+        super.onTouch(touchEventArgs)
+        modifierTouchHandler?.invoke(touchEventArgs)
     }
 
     private fun findNearestCandleTimestampMs(touchX: Float): Long {
@@ -140,14 +142,7 @@ class SnapCrosshairModifier(
         super.detach()
     }
 
-    private fun ModifierTouchEventArgs.asFakeTouch(x: Float, y: Float, action: Int) = apply {
-        e = MotionEvent.obtain(
-            SystemClock.uptimeMillis(),
-            SystemClock.uptimeMillis(),
-            action,
-            x,
-            y,
-            0,
-        )
+    fun setModifierTouchListener(handler: ((ModifierTouchEventArgs) -> Unit)?) {
+        this.modifierTouchHandler = handler
     }
 }

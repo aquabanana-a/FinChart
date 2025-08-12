@@ -5,12 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.banana.finchart.data.chart.ChartSnapshot
 import com.banana.finchart.model.snapshot.SnapshotManager
-import com.banana.finchart.ui.common.chart.SnapCrosshairModifier
+import com.banana.finchart.ui.common.chart.modifier.SnapCrosshairModifier
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import java.io.InputStream
 import javax.inject.Inject
 
 @HiltViewModel

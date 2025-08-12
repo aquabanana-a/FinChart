@@ -3,6 +3,7 @@
 package com.banana.finchart.ui.screen.main
 
 import android.graphics.DashPathEffect
+import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +20,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -39,15 +39,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.banana.finchart.R
 import com.banana.finchart.data.market.OHLC
-import com.banana.finchart.ui.common.chart.SnapCrosshairModifier
+import com.banana.finchart.ui.common.chart.modifier.SnapCrosshairModifier
 import com.banana.finchart.ui.common.chart.VolumePaletteProvider
+import com.banana.finchart.ui.common.chart.modifier.verticalCursor.VerticalCursorModifier
 import com.banana.finchart.ui.common.util.FormatUtil.format
 import com.banana.finchart.ui.common.util.FormatUtil.formatWithComma
+import com.banana.finchart.ui.common.util.TouchUtil.overrideTouch
 import com.banana.finchart.ui.theme.ChartGreenUp
 import com.banana.finchart.ui.theme.ChartGridColor
 import com.banana.finchart.ui.theme.ChartRedDown
 import com.scichart.charting.model.dataSeries.OhlcDataSeries
 import com.scichart.charting.model.dataSeries.XyDataSeries
+import com.scichart.charting.modifiers.CursorModifier
 import com.scichart.charting.modifiers.PinchZoomModifier
 import com.scichart.charting.modifiers.ZoomExtentsModifier
 import com.scichart.charting.visuals.SciChartSurface
@@ -63,6 +66,8 @@ import java.util.Collections
 import java.util.Date
 
 object MainScreen {
+
+    private lateinit var crosshairModifier: SnapCrosshairModifier
 
     @Composable
     fun TradingChart(modifier: Modifier, mainViewModel: MainScreenViewModel) {
@@ -195,11 +200,11 @@ object MainScreen {
                 }
             },
             update = { surface ->
-                var ohlcList = mainViewModel.activeChartSnapshot.value!!.ohlcDataList
+                val ohlcList = mainViewModel.activeChartSnapshot.value!!.ohlcDataList
 
                 val xAxis = DateAxis(surface.context).apply {
                     axisId = "xAxisCandle"
-                    //visibility = View.GONE
+                    visibility = View.GONE
                     this.visibleRange = visibleRange.value
                     setVisibleRangeChangeListener { axus, oldRange, newRange, isAnimated ->
                         if (visibleRange.value != newRange) {
@@ -234,17 +239,14 @@ object MainScreen {
                     yAxisId = "yAxisCandle"
                 }
 
-                val crosshairModifier = SnapCrosshairModifier(
+                crosshairModifier = SnapCrosshairModifier(
                     candleDataSeries = dataSeries,
                     stateFlow = mainViewModel.crosshairStateFlow,
-                ).apply {
-                    crosshairPaint.apply {
-                        pathEffect = DashPathEffect(floatArrayOf(12f, 6f), 0f)
-                    }
-                }
+                )
 
                 UpdateSuspender.using(surface) {
                     applyAxisStyle(xAxis, yAxis)
+                    applyCursorModifierStyle(crosshairModifier)
 
                     Collections.addAll(surface.renderableSeries, candleSeries)
                     Collections.addAll(
@@ -273,7 +275,7 @@ object MainScreen {
                 }
             },
             update = { surface ->
-                var ohlcList = mainViewModel.activeChartSnapshot.value!!.ohlcDataList
+                val ohlcList = mainViewModel.activeChartSnapshot.value!!.ohlcDataList
 
                 val xAxis = DateAxis(surface.context).apply {
                     axisId = "xAxisVolume"
@@ -312,21 +314,35 @@ object MainScreen {
                     yAxisId = "yAxisVolume"
                 }
 
-//                val volumeCross = CursorModifier().apply {
-//                }
+                val volumeCross = VerticalCursorModifier().apply {
+                    crosshairModifier.setModifierTouchListener {
+                        onTouch(it.overrideTouch(surface, this))
+                    }
+                }
 
                 UpdateSuspender.using(surface) {
                     applyAxisStyle(xAxis, yAxis)
                     applyVolumeStyle(columnSeries, ohlcList)
+                    applyCursorModifierStyle(volumeCross)
 
                     Collections.addAll(surface.renderableSeries, columnSeries)
                     Collections.addAll(
                         surface.chartModifiers,
-//                        volumeCross
+                        volumeCross
                     )
                 }
             }
         )
+    }
+
+    private fun applyCursorModifierStyle(modifier: CursorModifier) {
+        modifier.apply {
+            offset = 0f
+            showTooltip = false
+            crosshairPaint.apply {
+                pathEffect = DashPathEffect(floatArrayOf(12f, 6f), 0f)
+            }
+        }
     }
 
     private fun applyVolumeStyle(columnSeries: FastColumnRenderableSeries, ohlcList: List<OHLC>) {

@@ -101,6 +101,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun loadChartsData() {
-        mainViewModel.loadChartsData(assets, "EURUSD_OHLCV.xlsx", "6E")
+        mainViewModel.loadChartsData(assets, "EURUSD_OHLCV.xlsx", "6E"/*"mock"*/)
     }
 }
